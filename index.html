@@ -278,6 +278,102 @@
     <header>
       
         <div class="icon"></div>
+        <time datetime="2014-10-11T09:19:23.000Z"><a href="/2014/10/11/python模块——logging/">10月 11 2014</a></time>
+      
+      
+  
+    <h1 class="title"><a href="/2014/10/11/python模块——logging/">Python模块——logging</a></h1>
+  
+
+    </header>
+    <div class="entry">
+      
+        <p>一般情况下，一些程序的调试过程中我们会让它输出一些信息，特别是一些大型的程序，我们通过这些信息可以了解程序的运行情况，python提供了一个日志模块logging，它可以把我们想要的信息全部保存到一个日志文件中，方面我们查看。我们先看一个简单的例子。</p>
+<p>`&gt;&gt;&gt; import logging</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>LOG_FILENAME=”C:\Python25\log_test.txt”</p>
+<p>logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)</p>
+<p>logging.debug(“This message should go to the log file”)`</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<pre><code>然后我们就可以在C盘python25目录下发现一个名为log_test.txt的文件，打开里面的内容为：    DEBUG:root:This message should go <span class="built_in">to</span> <span class="operator">the</span> <span class="built_in">log</span> <span class="built_in">file</span>
+
+然后我们重复运行最后一句，会发现这个文本文件每次都会多出一行：DEBUG:root:This message should go <span class="built_in">to</span> <span class="operator">the</span> <span class="built_in">log</span> <span class="built_in">file</span>
+</code></pre><p>   下面我们看一个更标准的程序：</p>
+<p>`&gt;&gt;&gt; import logging</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>logger=logging.getLogger()</p>
+<p>handler=logging.FileHandler(“Log_test.txt”)</p>
+<p>logger.addHandler(handler)</p>
+<p>logger.setLevel(logging.NOTSET)</p>
+<p>logger.error(“This is an error message”)</p>
+<p>logger.info(“This is an info message”)</p>
+<p>logger.critical(“This is a critical message”)`</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<pre><code>日志文件中会出现三行内容：
+</code></pre><p>`This is an error message</p>
+<p>This is an info message</p>
+<p>This is a critical message`</p>
+<pre><code>上面程序的第2行是生成一个日志对象，里面的参数时日志的名字，可以带，也可以不带。第3行是生成了一个<span class="operator"><span class="keyword">handler</span>，logging支持很多种<span class="keyword">Handler</span>，像FileHandler，SocketHandler等待，这里由于我们要写文件，所以用了FileHandler，它的参数就是filename，默认当前路径，当然我们可以自己指定路径。
+
+第<span class="number">5</span>行设置日志信息输出的级别。Logging提供了多种日志级别，如NOTSET,DEBUG,INFO,WARNING,ERROR,CRITICAL等，每个级别都对应一个数值，如果我们不自己设置输出级别，那么系统会执行缺省级别，值为<span class="number">30</span>，就warning。Logging也提供了一个方法来查看缺省日志级别，getLevelName（logger，getEffectiveLevel（））。</span>
+</code></pre><p><img src="http://s5.sinaimg.cn/large/4b50392147449518bd214&amp;690" alt=""></p>
+<pre><code>日志对象对于不同的级别信息提供不同的函数进行输出，如：<span class="function">info</span>(), <span class="function">error</span>(), <span class="function">debug</span>()等。当写入日志时，小于指定级别的信息将被忽略。因此为了输出想要的日志级别一定要设置好此参数。这里我设为NOTSET（值为0），也就是想输出所有信息。系统默认的日志级别排序为，CRITICAL,ERROR,WARNING,INFO,DEBUG,NOTSET。比如说我们要输出的信息为CRITICAL，但是我们的日志级别为DEBUG，那么这个信息将被忽略掉。我们看下面的例子：
+</code></pre><p>`import logging</p>
+<p>import sys</p>
+<p>LEVELS={‘debug’:logging.DEBUG,</p>
+<pre><code>    <span class="string">'info'</span><span class="symbol">:logging</span>.<span class="constant">INFO</span>,
+
+    <span class="string">'warning'</span><span class="symbol">:logging</span>.<span class="constant">WARNING</span>,
+
+    <span class="string">'error'</span><span class="symbol">:logging</span>.<span class="constant">ERROR</span>,
+
+    <span class="string">'critical'</span><span class="symbol">:logging</span>.<span class="constant">CRITICAL</span>}
+</code></pre><p>if len(sys.argv)&gt;1:</p>
+<pre><code><span class="variable">level_name=</span>sys.argv[<span class="number">1</span>]
+
+<span class="variable">level=</span>LEVELS.get(level_name,logging.NOTSET)
+
+logging.basicConfig(<span class="variable">level=</span>level)
+</code></pre><p>logging.debug(“This is a debug message”)</p>
+<p>logging.info(“This is an info message”)</p>
+<p>logging.warning(“This is a warning message”)</p>
+<p>logging.error(“This is an error message”)</p>
+<p>logging.critical(“This is a critical error message”)`</p>
+<pre><code>运行时候，我们根据给的参数时<span class="keyword">debug</span>，info等等，来看看输出情况，就可以知道各个日志级别的输出情况了，下面是结果：
+</code></pre><p><img src="http://s5.sinaimg.cn/middle/4b5039214744952a6e2c4&amp;690" alt=""></p>
+<pre><code>可以看到过滤进行的很明显。当我们设置级别最低位<span class="keyword">debug</span>时，所有的信息都输出了，当我们设为最高位critical时候，只有critical输出了，低于critical的被过滤了。
+
+Logging是非常有用的，一个程序的健壮性也这个有关，当一个程序包含很多的调试信息时，可以方便我们发现问题，发现错误。
+</code></pre>
+      
+    </div>
+    <footer>
+      
+        
+        
+      
+      <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+
+
+
+  <article class="post">
+  
+  <div class="post-content">
+    <header>
+      
+        <div class="icon"></div>
         <time datetime="2014-08-05T14:28:01.000Z"><a href="/2014/08/05/语文高级素养——笔记整理/">8月 5 2014</a></time>
       
       
@@ -323,6 +419,8 @@
   <h3 class="title">分类</h3>
   <ul class="entry">
   
+    <li><a href="/categories/Python/">Python</a><small>1</small></li>
+  
     <li><a href="/categories/test/">test</a><small>1</small></li>
   
   </ul>
@@ -353,6 +451,10 @@
     
       <li>
         <a href="/2015/01/04/测试用文/">测试用文</a>
+      </li>
+    
+      <li>
+        <a href="/2014/10/11/python模块——logging/">Python模块——logging</a>
       </li>
     
       <li>
